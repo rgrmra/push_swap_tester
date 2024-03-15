@@ -1,27 +1,27 @@
 #!/bin/bash
 
-echo -e "\n\033[1;95mPUSH SWAP TESTER\033[0m"
+if  ! [[ $1 =~ ^[0-9]+$ ]];
+then
+	echo -e "\033[1;97m$0 <valor>\n$0 100\033[0m";
+	exit 1;
+fi
 
 if [ ! -e $0 ];
 then 
 	echo -e "\n\033[1;91m./checker_linux binary not found.\033[0m";
-	exit;
-elif [ ! -e "./push_swap" ];
+	exit 1;
+elif [ ! -e "../push_swap" ];
 then
-	make
+	make -C .. --no-print-directory
 fi
 
-if [[ $1 -lt 0 ]] && ! [[ $1 =~ '^[0-9]+$' ]]
-then
-	echo -e "\033[1;97m$0 <valor>\n$0 100\033[0m";
-	exit;
-fi
-
-if [ ! -e "./push_swap" ];
+if [ ! -e "../push_swap" ];
 then
     echo -e "\n\033[1;91m./push_swap binary not found.\033[0m"
     exit 1
 fi
+
+echo -e "\n\033[1;95mPUSH SWAP TESTER\033[0m"
 
 if [ $1 -a !SIZE ];
 then
@@ -30,24 +30,23 @@ else
 	SIZE=0;
 fi
 
-if [ $4 -a !BIGGER ];
+if [ $4 -a !LARGEST ];
 then
-	BIGGER=$4;
+	LARGEST=$4;
 else
-	BIGGER=0;
+	LARGEST=0;
 fi
 
-if [ $5 -a !SMALLER ];
+if [ $5 -a !SMALLEST ];
 then
-	SMALLER=$5;
+	SMALLEST=$5;
 else
-	SMALLER=2147483647;
+	SMALLEST=2147483647;
 fi
 
-export VAR="$(seq -100000 100000 | shuf -n $SIZE | tr '\n' ' ')"
-#export VAR="$(shuf -i 1-$SIZE | tr '\n' ' ')"
+export VAR="$(seq -10000 10000 | shuf -n $SIZE | tr '\n' ' ')"
 
-./push_swap $VAR > tmp.log
+../push_swap $VAR > tmp.log
 
 print() {
 	echo -ne "\033[1;97m$1: \033[1;93m$2  \033[1;m"
@@ -134,50 +133,42 @@ else
 	export MEDIAN=$(expr $TOTAL + $MEDIAN)
 fi
 
-if [ $TOTAL -gt $BIGGER ];
+if [ $TOTAL -gt $LARGEST ];
 then
-	BIGGER=$TOTAL;
+	LARGEST=$TOTAL;
 fi
 
-if [ $TOTAL -lt $SMALLER ];
+if [ $TOTAL -lt $SMALLEST ];
 then
-	SMALLER=$TOTAL
+	SMALLEST=$TOTAL
 fi
 
-print 'SMALLER' $SMALLER
-print 'BIGGER' $BIGGER
+print 'SMALLEST' $SMALLEST
+print 'LARGEST' $LARGEST
 
-STATUS=$(./push_swap $VAR | ./checker_linux $VAR)
-#STATUS=$(./push_swap $VAR | ./checker $VAR)
-
-echo -ne "\033[1mSTATUS: "
-
+echo -ne "\033[1mCHECKER: \033[0m";
+STATUS=$(../push_swap $VAR | ./checker_linux $VAR)
 if [[ $STATUS == "OK" || $STATUS == "" ]];
 then
-	echo -e "\033[1;92mOK\033[1m";
+	echo -ne "\033[1;92mOK\033[0m";
 else
-	echo -e "\033[1;91mKO\033[1m";
+	echo -ne "\033[1;91mKO\033[0m";
 fi
 
-if [ $SIZE -lt 101 ];
+echo -ne "\033[1m AVALIATION: ";
+if ([ $SIZE -lt 101 ] && [ $TOTAL -lt 701 ]) || ([ $SIZE -lt 501 ] && [ $TOTAL -lt 5500 ]);
 then
-	if [ $TOTAL -lt 701 ];
+	echo -ne "\033[1;92mSUCCESS\033[0m";
+else 
+	if [ $SIZE -lt 501 ];
 	then
-		echo -e "\033[1;92mSUCCESS\033[1m";
-	else
-		echo -e "\033[1;91mFAIL\033[1m";
+		echo -ne "\033[1;91mFAIL\033[0m";
 		echo -e $VAR >> fail.log;
-	fi
-elif [ $SIZE -lt 501 ];
-then
-	if [ $TOTAL -lt 5501 ]
-	then
-		echo -e "\033[1;92mSUCCESS\033[1m";
 	else
-		echo -e "\033[1;91mFAIL\033[1m";
-		echo -e $VAR >> fail.log;
+		echo -ne "\033[1;94mNOT INFORMED\033[0m";
 	fi
 fi
+echo "";
 
 if [ -z "$TIMES" ];
 then
@@ -186,15 +177,14 @@ else
 	export TIMES=$(expr $TIMES + 1)
 fi
 
-print 'MEDIAN' $(expr $MEDIAN / $TIMES)
+print 'MEDIAN' $(expr $MEDIAN / $TIMES);
+echo -e "";
 
 sleep 1
 
-echo -e ""
-
-if [ $SIZE -gt 1 ];
+if [ $SIZE -lt 2 ];
 then
-	$0 $SIZE $MEDIAN $TIMES $BIGGER $SMALLER
-else
-	echo -e "\n\033[1;97m$0 <valor>\n$0 100\033[0m"
+	exit 0;
 fi
+
+$0 $SIZE $MEDIAN $TIMES $LARGEST $SMALLEST
