@@ -18,11 +18,7 @@ then
 elif [ ! -e "$DIR/../push_swap" ];
 then
 	make -C $DIR/../ --no-print-directory;
-	if [ ! -e "$DIR/../push_swap" ];
-	then
-		red './push_swap binary not found.';
-		exit 1;
-	fi
+	$0 $1 $2;
 else
 	purple "PUSH SWAP TESTER\n";
 	
