@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export DIR=$(dirname $0);
+
 blue() { echo -ne "\033[1;94m$1\033[0m"; }
 green() { echo -ne "\033[1;92m$1\033[0m"; }
 red() { echo -ne "\033[1;91m$1\033[0m"; }
@@ -13,10 +15,10 @@ elif [ ! -e $0 ];
 then
 	red './checker_linux binary not found.';
 	exit 1;
-elif [ ! -e "../push_swap" ];
+elif [ ! -e "$DIR/../push_swap" ];
 then
-	make -C ../ --no-print-directory;
-	if [ ! -e "../push_swap" ];
+	make -C $DIR/../ --no-print-directory;
+	if [ ! -e "$DIR/../push_swap" ];
 	then
 		red './push_swap binary not found.';
 		exit 1;
@@ -54,7 +56,7 @@ else
 	
 	export VAR="$(seq -10000 10000 | shuf -n $SIZE | tr '\n' ' ')"
 	
-	../push_swap $VAR > tmp.log
+	$DIR/../push_swap $VAR > $DIR/tmp.log
 	
 	print() {
 		if [[ $2 != "" ]] && [ $2 -gt 0 ];
@@ -64,9 +66,9 @@ else
 	}
 
 	title() { echo -ne "\033[1m$1: \033[0m"; }
-	move() { echo -n $(cat tmp.log | grep -w $1 | wc -l); }
+	move() { echo -n $(cat $DIR/tmp.log | grep -w $1 | wc -l); }
 
-	TOTAL=$(cat tmp.log | wc -l)
+	TOTAL=$(cat $DIR/tmp.log | wc -l)
 	
 	print 'SA' $(move 'sa');
 	print 'SB' $(move 'sb');
@@ -105,7 +107,7 @@ else
 	print 'LARGEST' $LARGEST
 	
 	title 'CHECKER';
-	STATUS=$(../push_swap $VAR | ./checker_linux $VAR)
+	STATUS=$($DIR/../push_swap $VAR | $DIR/checker_linux $VAR)
 	if [[ $STATUS == "OK" || $STATUS == "" ]];
 	then
 		green 'OK ';
@@ -121,7 +123,7 @@ else
 		if [ $SIZE -lt 501 ];
 		then
 			red 'FAIL';
-			echo -e $VAR >> fail.log;
+			echo -e $VAR >> $DIR/fail.log;
 		else
 			blue 'NOT INFORMED';
 		fi
@@ -144,7 +146,7 @@ else
 		sleep 1;
 	elif [ $REPEAT -gt 0 ];
 	then
-		rm tmp.log;
+		rm $DIR/tmp.log;
 		exit 0;
 	else
 		sleep 1;
