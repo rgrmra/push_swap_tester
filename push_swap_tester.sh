@@ -12,7 +12,11 @@ then
 	exit 1;
 elif [ ! -e "../push_swap" ];
 then
-	make -C .. --no-print-directory
+	make -C ../ --no-print-directory;
+	if [ ! -e "../push_swap" ];
+	then
+		exit 1;
+	fi
 fi
 
 if [ ! -e "../push_swap" ];
@@ -30,16 +34,23 @@ else
 	SIZE=0;
 fi
 
-if [ $4 -a !LARGEST ];
+if [ $2 -a !REPEAT ];
 then
-	LARGEST=$4;
+	REPEAT=$2;
+else
+	REPEAT=0;
+fi
+
+if [ $5 -a !LARGEST ];
+then
+	LARGEST=$5;
 else
 	LARGEST=0;
 fi
 
-if [ $5 -a !SMALLEST ];
+if [ $6 -a !SMALLEST ];
 then
-	SMALLEST=$5;
+	SMALLEST=$6;
 else
 	SMALLEST=2147483647;
 fi
@@ -122,7 +133,6 @@ fi
 
 echo -e ""
 print 'SIZE' $SIZE
-#echo -e ""
 
 print 'MOVES' $TOTAL
 
@@ -187,4 +197,11 @@ then
 	exit 0;
 fi
 
-$0 $SIZE $MEDIAN $TIMES $LARGEST $SMALLEST
+if [ $REPEAT -gt 1 ];
+then
+	REPEAT=$(expr $REPEAT - 1);
+else
+	exit 0;
+fi
+
+$0 $SIZE $REPEAT $MEDIAN $TIMES $LARGEST $SMALLEST
