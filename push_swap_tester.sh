@@ -103,7 +103,7 @@ else
 	print 'LARGEST' $LARGEST
 	
 	title 'CHECKER';
-	STATUS=$($DIR/../push_swap $VAR | $DIR/checker_linux $VAR)
+	STATUS=$(< $DIR/tmp.log $DIR/checker_linux $VAR)
 	if [[ $STATUS == "OK" || $STATUS == "" ]];
 	then
 		green 'OK ';
