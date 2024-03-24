@@ -112,7 +112,7 @@ else
 	fi
 	
 	title 'AVALIATION';
-	if ([ $SIZE -lt 101 ] && [ $TOTAL -lt 701 ]) || ([ $SIZE -lt 501 ] && [ $TOTAL -lt 5500 ]);
+	if ([ $SIZE -lt 101 ] && [ $TOTAL -lt 701 ]) || ([ $SIZE -gt 101 ] && [ $SIZE -lt 501 ] && [ $TOTAL -lt 5500 ]);
 	then
 		green 'SUCCESS';
 	else 
